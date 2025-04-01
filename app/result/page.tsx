@@ -1,41 +1,25 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import useLocalStorage from '@/hooks/use-local-storage'
-import { type Nakshatra, calculateNakshatra } from '@/lib/nakshatra-data'
+import { calculateNakshatra } from '@/lib/nakshatra-data'
 
 export default function ResultPage() {
   const router = useRouter()
-  const [nakshatra, setNakshatra] = useState<Nakshatra | null>(null)
-  const [loading, setLoading] = useState(true)
   const [selectedDate, _] = useLocalStorage('selectedDate')
+  const birthDate = selectedDate.data as string
 
-  useEffect(() => {
-    const birthDate = selectedDate.data as string
-    if (!birthDate) {
-      router.push('/calculate')
-      return
-    }
-
-    setNakshatra(calculateNakshatra(new Date(birthDate)))
-    setLoading(false)
-  }, [router, selectedDate])
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex items-center justify-center">
-        <div className="text-xl text-purple-900">計算中...</div>
-      </div>
-    )
+  if (!birthDate) {
+    router.push('/calculate')
+    return
   }
 
-  if (!nakshatra) {
-    return null
-  }
+  const nakshatra = calculateNakshatra(new Date(birthDate))
+
+  if (!nakshatra) return null
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-50 to-white py-16">
+    <div className="flex-grow bg-gradient-to-b from-purple-50 to-white py-16">
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-4xl md:text-5xl font-bold text-purple-900 mb-8 text-center">
@@ -145,7 +129,7 @@ export default function ResultPage() {
             <div className="mt-12 text-center">
               <button
                 onClick={() => router.push('/calculate')}
-                className="inline-flex items-center justify-center bg-purple-600 text-white py-4 px-8 rounded-lg text-lg font-semibold hover:bg-purple-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                className="inline-flex items-center justify-center bg-purple-600 text-white py-4 px-8 rounded text-lg font-semibold hover:bg-purple-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
               >
                 もう一度計算する
               </button>
@@ -153,6 +137,6 @@ export default function ResultPage() {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   )
 }
